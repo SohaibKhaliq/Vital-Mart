@@ -81,6 +81,21 @@
     @endif
     <!-- recaptcha -->
 
+    <style>
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -98,7 +113,11 @@
     <!--preloader start-->
     @if (getSetting('enable_preloader') != '0')
     <div id="preloader">
-        <img src="{{ uploadedAsset(getSetting('frontend_preloader')) ?? staticAsset('frontend/default/assets/img/preloader.gif') }}" alt="preloader" class="img-fluid" max-width="180">
+        <div class="preloader-inner">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
     </div>
     @endif
     <!--preloader end-->

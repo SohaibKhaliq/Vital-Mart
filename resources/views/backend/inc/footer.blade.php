@@ -1,5 +1,5 @@
-<!--footer section start-->
-<footer class="tt-footer bg-light-subtle py-3 mt-auto">
+<!-- footer section start-->
+<!-- <footer class="tt-footer bg-light-subtle py-3 mt-auto">
     <div class="container">
         <div class="row g-3">
             <div class="col-md-6 order-last order-md-first">
@@ -14,5 +14,5 @@
             </div>
         </div>
     </div>
-</footer>
-<!--footer section end-->
+</footer> -->
+<!--footer section end -->

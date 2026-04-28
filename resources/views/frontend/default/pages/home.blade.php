@@ -17,14 +17,6 @@
     @include('frontend.default.pages.partials.home.featuredProducts')
     <!--featured products end-->
 
-    <!--trending products start-->
-    @include('frontend.default.pages.partials.home.trendingProducts')
-    <!--trending products end-->
-
-    <!--banner section start-->
-    @include('frontend.default.pages.partials.home.banners')
-    <!--banner section end-->
-
     <!--banner section start-->
     @include('frontend.default.pages.partials.home.bestDeals')
     <!--banner section end-->
@@ -49,7 +41,7 @@
     @endif
 
     <!--blog section start-->
-    @include('frontend.default.pages.partials.home.blogs', ['blogs' => $blogs])
+    <!-- @include('frontend.default.pages.partials.home.blogs', ['blogs' => $blogs]) -->
     <!--blog section end-->
 @endsection
 

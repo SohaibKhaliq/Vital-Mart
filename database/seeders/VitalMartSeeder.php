@@ -31,6 +31,11 @@ class VitalMartSeeder extends Seeder
         DB::table('currencies')->truncate();
         DB::table('carts')->truncate();
         DB::table('wishlists')->truncate();
+        DB::table('users')->truncate();
+        DB::table('user_addresses')->truncate();
+        DB::table('logistics')->truncate();
+        DB::table('logistic_zones')->truncate();
+        DB::table('logistic_zone_cities')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // ─────────────────────────────────────────────
@@ -66,6 +71,41 @@ class VitalMartSeeder extends Seeder
         ]);
 
         // ─────────────────────────────────────────────
+        // 4. USERS
+        // ─────────────────────────────────────────────
+        $adminId = DB::table('users')->insertGetId([
+            'name'              => 'Admin',
+            'email'             => 'admin@gmail.com',
+            'password'          => bcrypt('123456'),
+            'user_type'         => 'admin',
+            'email_verified_at' => Carbon::now(),
+            'created_at'        => Carbon::now(),
+            'updated_at'        => Carbon::now(),
+        ]);
+
+        $customerId = DB::table('users')->insertGetId([
+            'name'              => 'Vital Customer',
+            'email'             => 'user@gmail.com',
+            'password'          => bcrypt('12345678'),
+            'user_type'         => 'customer',
+            'email_verified_at' => Carbon::now(),
+            'created_at'        => Carbon::now(),
+            'updated_at'        => Carbon::now(),
+        ]);
+
+        // Gujrat address
+        DB::table('user_addresses')->insert([
+            'user_id'     => $customerId,
+            'country_id'  => 166, // Pakistan
+            'state_id'    => 2728, // Punjab
+            'city_id'     => 31376, // Gujrat
+            'address'     => 'GIMS Gujrat, Pakistan',
+            'is_default'  => 1,
+            'created_at'  => Carbon::now(),
+            'updated_at'  => Carbon::now(),
+        ]);
+
+        // ─────────────────────────────────────────────
         // 4. Register ALL media files (jpg/jpeg/png/gif/webp)
         //    logo.jpeg  → navbar_logo, footer_logo, admin_panel_logo
         //    loader.gif → frontend_preloader
@@ -98,6 +138,52 @@ class VitalMartSeeder extends Seeder
 
         $logoId    = $mediaMap['logo.jpeg']  ?? null;
         $loaderId  = $mediaMap['loader.gif'] ?? null;
+
+        // ─────────────────────────────────────────────
+        // 6. SHIPPING & LOGISTICS (Pakistan Wide)
+        // ─────────────────────────────────────────────
+        // Activate Pakistan and its cities
+        DB::table('countries')->where('id', 166)->update(['is_active' => 1]);
+        DB::table('states')->where('country_id', 166)->update(['is_active' => 1]);
+        DB::table('cities')->whereIn('state_id', function($query) {
+            $query->select('id')->from('states')->where('country_id', 166);
+        })->update(['is_active' => 1]);
+
+        $logisticId = DB::table('logistics')->insertGetId([
+            'name'         => 'Vital Mart Logistics',
+            'slug'         => 'vital-mart-logistics',
+            'is_published' => 1,
+            'is_active'    => 1,
+            'created_at'   => Carbon::now(),
+            'updated_at'   => Carbon::now(),
+        ]);
+
+        $zoneId = DB::table('logistic_zones')->insertGetId([
+            'name'                     => 'Pakistan All Cities',
+            'logistic_id'              => $logisticId,
+            'standard_delivery_charge' => 120,
+            'standard_delivery_time'   => '2 - 4 days',
+            'created_at'               => Carbon::now(),
+            'updated_at'               => Carbon::now(),
+        ]);
+
+        // Map all Pakistani cities to this zone
+        $cityIds = DB::table('cities')->whereIn('state_id', function($query) {
+            $query->select('id')->from('states')->where('country_id', 166);
+        })->pluck('id');
+
+        $zoneCities = [];
+        foreach ($cityIds as $cityId) {
+            $zoneCities[] = [
+                'logistic_zone_id' => $zoneId,
+                'city_id'          => $cityId,
+                'logistic_id'      => $logisticId,
+            ];
+        }
+        // Insert in chunks to avoid SQL limit issues
+        foreach (array_chunk($zoneCities, 500) as $chunk) {
+            DB::table('logistic_zone_cities')->insert($chunk);
+        }
 
         // ─────────────────────────────────────────────
         // 5. Categories
@@ -320,6 +406,13 @@ class VitalMartSeeder extends Seeder
             );
         }
 
+        // Payments (COD only)
+        DB::table('system_settings')->updateOrInsert(['entity' => 'enable_cod'], ['value' => '1']);
+        DB::table('system_settings')->updateOrInsert(['entity' => 'enable_wallet_checkout'], ['value' => '0']);
+
+        // Theme Configuration (Remove Halal, Keep Grocery)
+        DB::table('system_settings')->updateOrInsert(['entity' => 'active_themes'], ['value' => json_encode([1])]); // Only Default theme (id=1)
+
         // Hero sliders
         $heroSliders = [
             [
@@ -370,6 +463,8 @@ class VitalMartSeeder extends Seeder
         // Category sections
         $catIds = DB::table('categories')->pluck('id')->toArray();
         DB::table('system_settings')->where('entity', 'top_category_ids')
+            ->update(['value' => json_encode($catIds)]);
+        DB::table('system_settings')->where('entity', 'navbar_categories')
             ->update(['value' => json_encode($catIds)]);
         DB::table('system_settings')->where('entity', 'trending_product_categories')
             ->update(['value' => json_encode(array_slice($catIds, 0, 5))]); // Show more categories in filter
