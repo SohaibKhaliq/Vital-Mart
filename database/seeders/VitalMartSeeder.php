@@ -29,6 +29,8 @@ class VitalMartSeeder extends Seeder
         DB::table('category_localizations')->truncate();
         DB::table('media_managers')->truncate();
         DB::table('currencies')->truncate();
+        DB::table('carts')->truncate();
+        DB::table('wishlists')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // ─────────────────────────────────────────────
