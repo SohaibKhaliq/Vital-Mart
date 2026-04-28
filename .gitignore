@@ -30,3 +30,7 @@ multivendor-rename-to-vendor.zip
 # uploads.zip
 copy.php
 change-list.txt
+
+storage/debugbar/
+storage/debugbar/*
+.vscode

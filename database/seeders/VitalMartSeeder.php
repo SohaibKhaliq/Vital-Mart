@@ -199,6 +199,25 @@ class VitalMartSeeder extends Seeder
                         'product_id' => $productId,
                         'theme_id' => 1,
                     ]);
+
+                    // Default variation (required by template: $product->variations[0])
+                    $variationId = DB::table('product_variations')->insertGetId([
+                        'product_id'    => $productId,
+                        'variation_key' => 'default',
+                        'sku'           => 'SKU-' . $productId,
+                        'price'         => $price,
+                        'created_at'    => Carbon::now(),
+                        'updated_at'    => Carbon::now(),
+                    ]);
+
+                    // Variation stock record
+                    DB::table('product_variation_stocks')->insert([
+                        'product_variation_id' => $variationId,
+                        'location_id'          => null,
+                        'stock_qty'            => 100,
+                        'created_at'           => Carbon::now(),
+                        'updated_at'           => Carbon::now(),
+                    ]);
                 }
             }
         }
