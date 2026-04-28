@@ -73,7 +73,7 @@
         </a>
     </div>
 </div>
-<div class="offcanvas-left-menu position-fixed">
+<!-- <div class="offcanvas-left-menu position-fixed">
     <div class="mobile-menu">
         <button class="offcanvas-close"><i class="fa-solid fa-xmark"></i></button>
         <a href="{{ route('home') }}" class="d-inline-block mb-5"><img
@@ -101,4 +101,4 @@
             </ul>
         </nav>
     </div>
-</div>
+</div> -->

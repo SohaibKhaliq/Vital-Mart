@@ -341,24 +341,36 @@ class VitalMartSeeder extends Seeder
             ->update(['value' => json_encode($heroSliders)]);
 
         // Featured / trending products
+        $trendingIds = $allProductIds; 
+        shuffle($trendingIds);
+        $trendingIds = array_slice($trendingIds, 0, 12); // Take 12 products for a full grid
+        
         $featuredIds = array_slice($allProductIds, 0, 6);
+        
         DB::table('system_settings')->where('entity', 'featured_products_left')
             ->update(['value' => json_encode(array_slice($featuredIds, 0, 3))]);
         DB::table('system_settings')->where('entity', 'featured_products_right')
             ->update(['value' => json_encode(array_slice($featuredIds, 3, 3))]);
         DB::table('system_settings')->where('entity', 'top_trending_products')
-            ->update(['value' => json_encode($featuredIds)]);
+            ->update(['value' => json_encode($trendingIds)]);
         DB::table('system_settings')->where('entity', 'weekly_best_deals')
-            ->update(['value' => json_encode($featuredIds)]);
+            ->update(['value' => json_encode($trendingIds)]);
         DB::table('system_settings')->where('entity', 'best_selling_products')
             ->update(['value' => json_encode(array_slice($featuredIds, 0, 3))]);
+
+        // Clean up old banners that are cluttering the UI with product images
+        DB::table('system_settings')->where('entity', 'banner_section_one_banners')->update(['value' => '[]']);
+        DB::table('system_settings')->where('entity', 'banner_section_two_banner_one')->update(['value' => null]);
+        DB::table('system_settings')->where('entity', 'banner_section_two_banner_two')->update(['value' => null]);
+        DB::table('system_settings')->where('entity', 'featured_center_banner')->update(['value' => null]);
+        DB::table('system_settings')->where('entity', 'best_deal_banner')->update(['value' => null]);
 
         // Category sections
         $catIds = DB::table('categories')->pluck('id')->toArray();
         DB::table('system_settings')->where('entity', 'top_category_ids')
             ->update(['value' => json_encode($catIds)]);
         DB::table('system_settings')->where('entity', 'trending_product_categories')
-            ->update(['value' => json_encode(array_slice($catIds, 0, 3))]);
+            ->update(['value' => json_encode(array_slice($catIds, 0, 5))]); // Show more categories in filter
         DB::table('system_settings')->where('entity', 'product_listing_categories')
             ->update(['value' => json_encode($catIds)]);
         DB::table('system_settings')->where('entity', 'footer_categories')

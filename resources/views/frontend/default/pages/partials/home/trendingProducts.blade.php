@@ -1,4 +1,4 @@
-<section class="pt-8 pb-100 bg-white position-relative overflow-hidden z-1 trending-products-area">
+<section class="pt-8 pb-100 bg-transparent position-relative overflow-hidden z-1 trending-products-area">
     <img src="{{ staticAsset('frontend/default/assets/img/shapes/garlic.png') }}" alt="garlic"
         class="position-absolute garlic z--1" data-parallax='{"y": 100}'>
     <img src="{{ staticAsset('frontend/default/assets/img/shapes/carrot.png') }}" alt="carrot"
